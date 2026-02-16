@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thy Sanctum | Truth Be Told Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment: #f5f0e6;
+            --ember: #ea580c;
+            --ash: #78716c;
+            --ink: #292524;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(234, 88, 12, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(120, 113, 108, 0.05) 0%, transparent 50%),
+                linear-gradient(to bottom, rgba(245, 240, 230, 0.9), rgba(245, 240, 230, 0.9)),
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+        }
+
+        .font-ritual { font-family: 'Cinzel', serif; }
+        .font-script { font-family: 'Playfair Display', serif; }
+
+        .scroll-shadow {
+            box-shadow: 
+                0 4px 6px -1px rgba(68, 46, 24, 0.1),
+                0 10px 20px -5px rgba(68, 46, 24, 0.15),
+                0 25px 50px -12px rgba(68, 46, 24, 0.25);
+        }
+
+        .floating-ember {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ea580c;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+            box-shadow: 0 0 6px #ea580c;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            50% { transform: translateY(-120px) translateX(30px); }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(245,240,230,0.6) 100%);
+            border: 1px solid rgba(120, 113, 108, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(68, 46, 24, 0.1);
+            border-color: rgba(234, 88, 12, 0.3);
+        }
+
+        .vote-history-item {
+            border-left: 3px solid #ea580c;
+            background: linear-gradient(90deg, rgba(234, 88, 12, 0.05) 0%, transparent 100%);
+        }
+
+        .btn-ritual {
+            background: linear-gradient(135deg, #9a3412 0%, #c2410c 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-ritual:hover {
+            background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px -5px rgba(234, 88, 12, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(120, 113, 108, 0.4);
+            color: #57534e;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(234, 88, 12, 0.6);
+            color: #c2410c;
+            background: rgba(234, 88, 12, 0.05);
+        }
+
+        .divider-ornate {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(120, 113, 108, 0.4) 50%, transparent 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen relative overflow-x-hidden">
+
+    <!-- Floating Embers -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden" id="ember-container"></div>
+
+    <!-- Navigation -->
+    <nav class="relative z-20 w-full px-6 py-6 flex items-center justify-between border-b border-stone-200/50 bg-white/30 backdrop-blur-sm">
+        <a href="index.html" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-600 to-orange-800 flex items-center justify-center shadow-lg group-hover:shadow-orange-500/30 transition-all">
+                <i data-lucide="flame" class="w-5 h-5 text-white"></i>
+            </div>
+            <div class="hidden sm:block">
+                <span class="text-xs font-ritual tracking-wider text-stone-500 uppercase block">Truth Be Told Hub</span>
+                <span class="font-ritual text-lg font-bold text-stone-800 leading-none">The Sacred Scroll</span>
+            </div>
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="text-stone-600 hover:text-orange-700 font-ritual text-sm tracking-wider transition-colors hidden sm:flex items-center gap-2">
+                <i data-lucide="scroll" class="w-4 h-4"></i>
+                The Ballot
+            </a>
+            <button onclick="signOut()" class="text-stone-500 hover:text-stone-700 font-ritual text-sm tracking-wider transition-colors flex items-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Depart</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="relative z-10 max-w-5xl mx-auto px-4 py-8 md:py-12">
+
+        <!-- Welcome Header -->
+        <div class="mb-10">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-100 to-orange-50 border-2 border-orange-200 flex items-center justify-center">
+                    <span id="user-initials" class="font-ritual text-2xl font-bold text-orange-800">--</span>
+                </div>
+                <div>
+                    <p class="text-sm text-stone-500 font-ritual tracking-wider uppercase mb-1">Welcome to thy Sanctum</p>
+                    <h1 id="user-email" class="font-ritual text-2xl md:text-3xl font-bold text-stone-800">Loading...</h1>
+                </div>
+            </div>
+            <p class="font-script italic text-stone-600 text-lg max-w-2xl">
+                "Herein lies thy mark upon the world, preserved for eternity in the chronicles."
+            </p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <div class="stat-card rounded-lg p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <i data-lucide="flame" class="w-5 h-5 text-orange-600"></i>
+                    <span class="text-xs text-stone-500 font-ritual uppercase tracking-wider">Total Marks</span>
+                </div>
+                <div id="total-user-votes" class="font-ritual text-3xl font-bold text-stone-800">0</div>
+                <p class="text-xs text-stone-500 mt-1">Cast in all cycles</p>
+            </div>
+
+            <div class="stat-card rounded-lg p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <i data-lucide="calendar" class="w-5 h-5 text-orange-600"></i>
+                    <span class="text-xs text-stone-500 font-ritual uppercase tracking-wider">Current Cycle</span>
+                </div>
+                <div id="current-cycle-status" class="font-ritual text-3xl font-bold text-stone-800">Open</div>
+                <p class="text-xs text-stone-500 mt-1">Thy voice matters</p>
+            </div>
+
+            <div class="stat-card rounded-lg p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <i data-lucide="crown" class="w-5 h-5 text-orange-600"></i>
+                    <span class="text-xs text-stone-500 font-ritual uppercase tracking-wider">Sanctum Rank</span>
+                </div>
+                <div class="font-ritual text-3xl font-bold text-stone-800">Keeper</div>
+                <p class="text-xs text-stone-500 mt-1">Of the Sacred Scroll</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Left Column: Voting History -->
+            <div class="md:col-span-2">
+                <div class="bg-white/60 backdrop-blur-sm rounded-xl p-6 md:p-8 scroll-shadow border border-stone-200">
+                    <h2 class="font-ritual text-xl font-semibold text-stone-800 mb-6 flex items-center gap-3">
+                        <i data-lucide="history" class="w-5 h-5 text-orange-600"></i>
+                        Thy Chronicle of Marks
+                    </h2>
+                    
+                    <div id="vote-history-container" class="space-y-4">
+                        <p class="text-stone-500 font-script italic text-center py-8">
+                            No marks yet recorded in this age...
+                        </p>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-stone-200">
+                        <a href="index.html" class="btn-ritual w-full text-white font-ritual tracking-wider py-3 rounded-lg flex items-center justify-center gap-2">
+                            <span>Cast New Mark</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Account Settings -->
+            <div>
+                <div class="bg-white/60 backdrop-blur-sm rounded-xl p-6 scroll-shadow border border-stone-200 mb-6">
+                    <h3 class="font-ritual text-lg font-semibold text-stone-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-4 h-4 text-orange-600"></i>
+                        Sanctum Settings
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-stone-700 mb-2">Display Name</label>
+                            <input type="text" id="display-name" class="w-full p-3 rounded-lg border border-stone-200 bg-white/50 text-stone-700 focus:outline-none focus:border-orange-500" placeholder="How thou art known">
+                        </div>
+                        
+                        <button onclick="updateProfile()" class="btn-secondary w-full py-2 rounded-lg text-sm font-medium">
+                            Update Seal
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50/50 rounded-xl p-6 border border-orange-100">
+                    <h3 class="font-ritual text-lg font-semibold text-stone-800 mb-3 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-orange-600"></i>
+                        Sacred Trust
+                    </h3>
+                    <ul class="space-y-2 text-sm text-stone-600">
+                        <li class="flex items-start gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-600 mt-0.5"></i>
+                            <span>Thy votes are cryptographically sealed</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-600 mt-0.5"></i>
+                            <span>Data never sold to profane merchants</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-green-600 mt-0.5"></i>
+                            <span>Delete thy account at any time</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="mt-12 pt-8 border-t border-stone-200">
+            <h3 class="font-ritual text-lg font-semibold text-red-800 mb-4 flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                The Void
+            </h3>
+            <p class="text-sm text-stone-600 mb-4">Permanently erase thy presence from the Sanctum. This cannot be undone.</p>
+            <button onclick="deleteAccount()" class="text-red-700 hover:text-red-800 font-medium text-sm underline decoration-red-300 hover:decoration-red-700 underline-offset-4">
+                Request Eternal Deletion
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 🚀 AUTO-CONFIG: Fetches from Vercel Environment Variables
+        let supabase = null;
+        let isDemoMode = true;
+        
+        async function initSupabase() {
+            try {
+                const response = await fetch('/api/env');
+                const env = await response.json();
+                
+                if (env.url && env.key && window.supabase && !env.demo) {
+                    supabase = window.supabase.createClient(env.url, env.key);
+                    isDemoMode = false;
+                    console.log('🔥 Connected to Supabase via Vercel');
+                    return true;
+                } else {
+                    console.log('🔧 DEMO MODE: Redirecting to auth');
+                    window.location.href = 'auth.html';
+                    return false;
+                }
+            } catch (e) {
+                console.log('🔧 DEMO MODE: API not available');
+                window.location.href = 'auth.html';
+                return false;
+            }
+        }
+
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initSupabase();
+            if (!isDemoMode) {
+                lucide.createIcons();
+                initializeEmbers();
+                checkAuth();
+            }
+        });
+
+        function initializeEmbers() {
+            const container = document.getElementById('ember-container');
+            for (let i = 0; i < 10; i++) {
+                const ember = document.createElement('div');
+                ember.className = 'floating-ember';
+                ember.style.left = Math.random() * 100 + '%';
+                ember.style.top = '100%';
+                ember.style.animationDelay = Math.random() * 10 + 's';
+                ember.style.animationDuration = (10 + Math.random() * 6) + 's';
+                container.appendChild(ember);
+            }
+        }
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            loadUserData();
+        }
+
+        async function loadUserData() {
+            // Set user info
+            document.getElementById('user-email').textContent = currentUser.email;
+            const initials = currentUser.email.substring(0, 2).toUpperCase();
+            document.getElementById('user-initials').textContent = initials;
+
+            // Load profile data
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (profile) {
+                document.getElementById('display-name').value = profile.display_name || '';
+            }
+
+            // Load vote history from Supabase
+            const { data: votes } = await supabase
+                .from('votes')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (votes && votes.length > 0) {
+                document.getElementById('total-user-votes').textContent = votes.length;
+                renderVoteHistory(votes);
+                
+                // Check if voted in current cycle
+                const lastVote = new Date(votes[0].created_at);
+                const hoursSinceVote = (Date.now() - lastVote) / (1000 * 60 * 60);
+                if (hoursSinceVote < 24) {
+                    document.getElementById('current-cycle-status').textContent = 'Sealed';
+                    document.getElementById('current-cycle-status').classList.add('text-orange-700');
+                }
+            }
+        }
+
+        function renderVoteHistory(votes) {
+            const container = document.getElementById('vote-history-container');
+            
+            const featureNames = {
+                'sacred-signin': 'Sacred Sign-In',
+                'hymnal-music': 'Hymnal Music',
+                'the-library': 'The Library',
+                'tbt-chat': 'TBT Chat',
+                'the-community': 'The Community',
+                'the-pool': 'The Pool',
+                'teachings': 'Teachings & Dialogues',
+                'creative-works': 'Creative Works',
+                'action-outreach': 'Action & Outreach',
+                'the-archive': 'The Archive'
+            };
+
+            container.innerHTML = votes.map(vote => {
+                const date = new Date(vote.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                return `
+                    <div class="vote-history-item rounded-lg p-4 flex items-center justify-between">
+                        <div>
+                            <h4 class="font-ritual font-semibold text-stone-800">${featureNames[vote.feature_id] || vote.feature_id}</h4>
+                            <p class="text-xs text-stone-500">${date}</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-orange-600">
+                            <i data-lucide="flame" class="w-4 h-4"></i>
+                            <span class="font-ritual text-sm font-bold">Marked</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        async function updateProfile() {
+            const displayName = document.getElementById('display-name').value;
+            
+            const { error } = await supabase
+                .from('profiles')
+                .upsert({
+                    id: currentUser.id,
+                    display_name: displayName,
+                    updated_at: new Date()
+                });
+
+            if (error) {
+                alert('Error updating profile: ' + error.message);
+            } else {
+                alert('Thy seal has been updated.');
+            }
+        }
+
+        async function signOut() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        async function deleteAccount() {
+            if (!confirm('Art thou certain? This shall erase all traces of thee from the Sanctum.')) return;
+            
+            if (!confirm('Truly? All votes, all history, gone forever?')) return;
+
+            // Delete user data
+            await supabase.from('votes').delete().eq('user_id', currentUser.id);
+            await supabase.from('profiles').delete().eq('id', currentUser.id);
+            
+            // Sign out
+            await supabase.auth.signOut();
+            
+            alert('Thy presence has been erased. Fare well.');
+            window.location.href = 'index.html';
+        }
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

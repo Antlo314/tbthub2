@@ -1,0 +1,82 @@
+/* Additional Sacred Scroll Styles */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+    background: rgba(234, 88, 12, 0.2);
+    color: #292524;
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+    outline: 2px solid rgba(234, 88, 12, 0.5);
+    outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .font-ritual {
+        letter-spacing: 0.02em;
+    }
+    
+    .vote-card:hover {
+        transform: none;
+    }
+    
+    /* Adjust ember density on mobile */
+    .floating-ember {
+        display: none;
+    }
+    .floating-ember:nth-child(-n+5) {
+        display: block;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .floating-ember {
+        display: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .floating-ember,
+    .btn-ritual,
+    #suggestion-form,
+    #archive-form {
+        display: none;
+    }
+    
+    .vote-card {
+        break-inside: avoid;
+        border: 1px solid #ccc;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .vote-card {
+        border: 2px solid currentColor;
+    }
+    
+    .btn-ritual {
+        border: 2px solid currentColor;
+    }
+}
