@@ -1,82 +1,159 @@
-/* Additional Sacred Scroll Styles */
-
-/* Smooth scrolling */
-html {
-    scroll-behavior: smooth;
+/* THE OBSIDIAN VOID THEME */
+:root {
+    --void: #050505;
+    --void-light: #0a0a0a;
+    --ember: #FF6B35;
+    --ember-dim: #993b1e;
+    --gold: #F7931E;
+    --ash: #505050;
+    --text-main: #ffffff;
+    --text-mute: #a3a3a3;
+    
+    /* Gradients */
+    --grad-ember: linear-gradient(135deg, var(--ember), var(--gold));
+    --grad-void: linear-gradient(to bottom, var(--void), #000000);
 }
 
-/* Selection styling */
-::selection {
-    background: rgba(234, 88, 12, 0.2);
-    color: #292524;
+/* Base Setup */
+body {
+    background-color: var(--void);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
 }
 
-/* Focus visible for accessibility */
-*:focus-visible {
-    outline: 2px solid rgba(234, 88, 12, 0.5);
-    outline-offset: 2px;
+h1, h2, h3, .font-ritual {
+    font-family: 'Cinzel', serif;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .font-ritual {
-        letter-spacing: 0.02em;
-    }
-    
-    .vote-card:hover {
-        transform: none;
-    }
-    
-    /* Adjust ember density on mobile */
-    .floating-ember {
-        display: none;
-    }
-    .floating-ember:nth-child(-n+5) {
-        display: block;
-    }
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-    
-    .floating-ember {
-        display: none;
-    }
+.glass-panel {
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 107, 53, 0.1); /* Subtle ember border */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Print styles */
-@media print {
-    body {
-        background: white;
-    }
-    
-    .floating-ember,
-    .btn-ritual,
-    #suggestion-form,
-    #archive-form {
-        display: none;
-    }
-    
-    .vote-card {
-        break-inside: avoid;
-        border: 1px solid #ccc;
-    }
+/* Buttons */
+.btn-ember {
+    background: var(--grad-ember);
+    color: white;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    .vote-card {
-        border: 2px solid currentColor;
-    }
-    
-    .btn-ritual {
-        border: 2px solid currentColor;
-    }
+.btn-ember:hover {
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-mute);
+    transition: all 0.3s ease;
+}
+
+.btn-ghost:hover {
+    border-color: var(--ember);
+    color: var(--ember);
+    background: rgba(255, 107, 53, 0.05);
+}
+
+/* Animations */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-ember {
+    0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4); }
+    70% { box-shadow: 0 0 0 20px rgba(255, 107, 53, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-ember {
+    animation: pulse-ember 2s infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--void);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--ash);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ember);
+}
+
+/* Mobile Nav (Bottom Bar) */
+.mobile-nav {
+    background: rgba(5, 5, 5, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    color: var(--ember);
+}
+.nav-item.active svg {
+    filter: drop-shadow(0 0 8px var(--ember));
+}
+
+/* Particle Canvas */
+#ember-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Admin Badge */
+.badge-admin {
+    background: linear-gradient(45deg, #000000, #3a3a3a);
+    border: 1px solid #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Tier Badges */
+.tier-primordial { background: linear-gradient(135deg, #FFD700, #B8860B); color: black; }
+.tier-ascended { background: linear-gradient(135deg, #E0E0E0, #A9A9A9); color: black; }
+.tier-keeper { background: linear-gradient(135deg, #CD7F32, #8B4513); color: white; }
+.tier-initiate { background: #333; color: #aaa; border: 1px solid #444; }
+
+/* Loader */
+#loader-overlay {
+    transition: opacity 0.8s ease, visibility 0.8s;
+}
+
+.hidden-fade {
+    opacity: 0;
+    visibility: hidden;
 }
