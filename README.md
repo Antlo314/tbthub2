@@ -4,7 +4,7 @@
 1.  **Open `index.html`**: Simply double-click the file to open it in your browser (Chrome/Edge recommended).
 2.  **Internet Connection**: Required *initially* to load the "Engine" (Tailwind CSS, Supabase, GSAP, Howler).
 3.  **Login**:
-    *   **Admin Access**: Sign in with `admin@truthbtoldhub.com` to see the **Architect's Console** (Admin Panel) at the bottom of the dashboard.
+    *   **Admin Access**: Sign in with `info@lumenlabsatl.com` to see the **Architect's Console** (Admin Panel) at the bottom of the dashboard.
     *   **Demo Mode**: If Supabase is unreachable, the app effectively runs in a local "Demo Mode".
 
 ## 🛠️ Setup Requirements (Supabase)
